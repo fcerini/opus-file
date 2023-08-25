@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/binary"
 	"log"
 	"time"
 )
@@ -28,30 +27,14 @@ func getOpusPacket(voicePacket []byte) (packet OpusPacket) {
 func handleVoiceBroadcast(buffer []byte) {
 
 	if len(buffer) < 30 {
-		return
+		log.Fatal("len(buffer) < 30", buffer)
 	}
 
-	// buffer
-	// 0:4 session uint32
-	// 5 cant canales byte
-	// lista de canales []uint32
-
-	var channelsList []uint32
-	senderSession := binary.LittleEndian.Uint32(buffer[0:4])
-	channelsInPacket := buffer[4]
-
-	for i := byte(0); i < channelsInPacket; i++ {
-		pos1 := i*4 + 5
-		pos2 := pos1 + 4
-		channelsList = append(channelsList, binary.LittleEndian.Uint32(buffer[pos1:pos2]))
-	}
-
-	headerEnd := channelsInPacket*4 + 5
-
-	packet := buffer[headerEnd:]
+	channelsList := []uint32{1}
+	senderSession := uint32(1)
 
 	// uso append para copiar los slices, sino quedan como referencia
-	voicePacket := append([]byte{}, packet...)
+	voicePacket := append([]byte{}, buffer...)
 
 	RecBuffMux.Lock()
 	pb, exists := RecorderBuffer[senderSession]
