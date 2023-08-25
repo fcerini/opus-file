@@ -13,7 +13,7 @@ var RecorderBuffer = make(map[uint32]*PacketBuffer) // Key: session
 
 func main() {
 
-	filePath := "debug.txt"
+	filePath := "audio.txt"
 	if len(os.Args) > 1 {
 		filePath = os.Args[1]
 	}
