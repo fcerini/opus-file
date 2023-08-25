@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
@@ -24,7 +25,11 @@ func getOpusPacket(voicePacket []byte) (packet OpusPacket) {
 	return
 }
 
+var GloLinea = 0
+var GloSecuencia = int64(0)
+
 func handleVoiceBroadcast(buffer []byte) {
+	GloLinea++
 
 	if len(buffer) < 30 {
 		log.Fatal("len(buffer) < 30", buffer)
@@ -36,6 +41,20 @@ func handleVoiceBroadcast(buffer []byte) {
 	// uso append para copiar los slices, sino quedan como referencia
 	voicePacket := append([]byte{}, buffer...)
 
+	packetBuff := getOpusPacket(voicePacket)
+
+	if GloSecuencia == 0 {
+		GloSecuencia = packetBuff.sequence - 4
+	}
+
+	if (packetBuff.sequence - GloSecuencia) != 4 {
+		fmt.Printf("WARN %v sec %v dif %v \n", GloLinea, packetBuff.sequence, packetBuff.sequence-GloSecuencia)
+	} else {
+		fmt.Printf(".... %v sec %v dif %v \n", GloLinea, packetBuff.sequence, packetBuff.sequence-GloSecuencia)
+	}
+
+	GloSecuencia = packetBuff.sequence
+
 	RecBuffMux.Lock()
 	pb, exists := RecorderBuffer[senderSession]
 
@@ -45,11 +64,10 @@ func handleVoiceBroadcast(buffer []byte) {
 			lastTimestamp:  time.Now(),
 			senderSession:  senderSession,
 			channelsList:   channelsList,
-			packetBuff:     []OpusPacket{getOpusPacket(voicePacket)},
+			packetBuff:     []OpusPacket{packetBuff},
 		}
-		log.Printf("Audio record started at:%v Sess:%v", time.Now(), senderSession)
 	} else {
-		pb.packetBuff = append(pb.packetBuff, getOpusPacket(voicePacket))
+		pb.packetBuff = append(pb.packetBuff, packetBuff)
 		pb.lastTimestamp = time.Now()
 	}
 

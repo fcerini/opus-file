@@ -44,6 +44,6 @@ func recordAudio() {
 		writer.WritePacket(p.payload, uint32(inc_acumm))
 	}
 	writer.Close()
-	log.Printf("Audio saved at:%v Sess:%v", time.Now(), pb.senderSession)
+	log.Print("Ok se genero el archivo ", fileName)
 
 }
