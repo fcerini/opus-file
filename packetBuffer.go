@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -20,37 +18,10 @@ type PacketBuffer struct {
 	packetBuff     []OpusPacket
 }
 
-func (pb PacketBuffer) checkEndOfAudioCondition() bool {
-	if time.Since(pb.lastTimestamp) >= 5*time.Second {
-		return true
-	} else {
-		return false
-	}
-}
+func recordAudio() {
 
-func loopEndOfAudio() {
-	for {
-		RecBuffMux.Lock()
-		for sess, pb := range RecorderBuffer {
-			if pb.checkEndOfAudioCondition() {
-				go recordAudio(*pb)
-				delete(RecorderBuffer, sess)
-			}
-		}
-		RecBuffMux.Unlock()
-		time.Sleep(1 * time.Second)
-	}
-}
-
-func recordAudio(pb PacketBuffer) {
-
-	duration_ms := pb.lastTimestamp.Sub(pb.firstTimestamp).Milliseconds()
-
-	fileName := fmt.Sprint(pb.senderSession) +
-		"_" + fmt.Sprint(pb.lastTimestamp.UnixMilli()) +
-		"_" + fmt.Sprint(duration_ms) +
-		"_" + strings.Trim(strings.Join(strings.Fields(fmt.Sprint(pb.channelsList)), ","), "[]") +
-		".ogg"
+	pb := RecorderBuffer[1]
+	fileName := "audio.opus"
 
 	writer, err := New(fileName, 48000, 1) // sampleRate - channelCount
 

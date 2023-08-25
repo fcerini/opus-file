@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -27,12 +28,17 @@ func main() {
 
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
-		log.Print(line)
+		values := strings.Split(line, ",")
 
-		buf := []byte{0}
-		handleVoiceBroadcast(buf)
+		bytes := make([]byte, len(values))
+		for i, value := range values {
+			num, _ := strconv.Atoi(value)
+			bytes[i] = byte(num)
+		}
+
+		handleVoiceBroadcast(bytes)
 	}
-
 	readFile.Close()
 
+	recordAudio()
 }
