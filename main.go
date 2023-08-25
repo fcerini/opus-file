@@ -2,9 +2,9 @@ package main
 
 import (
 	"bufio"
+	"encoding/hex"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -28,13 +28,14 @@ func main() {
 
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
-		values := strings.Split(line, ",")
+		packet := line[9:]
+		//log.Print(packet)
 
-		bytes := make([]byte, len(values))
-		for i, value := range values {
-			num, _ := strconv.Atoi(value)
-			bytes[i] = byte(num)
-		}
+		packet = strings.ReplaceAll(packet, " ", "")
+		//log.Print(packet)
+
+		bytes, _ := hex.DecodeString(packet)
+		//log.Print(bytes)
 
 		handleVoiceBroadcast(bytes)
 	}
