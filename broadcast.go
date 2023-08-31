@@ -43,6 +43,8 @@ func handleVoiceBroadcast(buffer []byte) {
 
 	packetBuff := getOpusPacket(voicePacket)
 
+	//packetBuff.sequence = int64(GloLinea * 4)
+
 	if GloSecuencia == 0 {
 		GloSecuencia = packetBuff.sequence - 4
 	}
